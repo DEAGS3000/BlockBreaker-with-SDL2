@@ -15,6 +15,7 @@
 #include "Item.h"
 #include "Animation.h"
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 
 using namespace std;
@@ -60,5 +61,44 @@ public:
 	void reset();
 
 	bool is_clear();
+
+
+	// 从window类搬运的
+	SDL_Window *ptr;
+	SDL_Renderer *renderer;
+	SDL_Texture *textures[30];
+	SDL_Texture *background;
+	TTF_Font *font;
+
+	bool game_started;
+
+	// 初始化
+	void init();
+	// 重绘
+	void draw();
+	// 更新
+	void update();
+
+	// 处理碰撞
+	void handle_collision();
+	// 处理击中
+	//void handle_hit(int i, Ball *ball, Block* block);
+
+	// 读取图像
+	SDL_Texture* load_image(string path);
+
+	SDL_Texture* render_text(string message);
+
+	bool quit;
+	bool mouse_on_button;
+	SDL_Rect option_rect;
+
+	// 计时器
+	// 测试
+	const int FPS = 60;
+	float frame_time;
+	Uint32 previous_time;
+	Uint32 current_time;
+	float delta_time;
 };
 
