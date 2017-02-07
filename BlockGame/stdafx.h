@@ -6,4 +6,3 @@
 #include "GraphicItem.h"
 #include "Ball.h"
 #include "Block.h"
-#include "Stick.h"
