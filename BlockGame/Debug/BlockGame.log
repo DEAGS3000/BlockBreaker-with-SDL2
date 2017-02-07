@@ -1,0 +1,4 @@
+﻿  Ball.cpp
+d:\source code\vs\blockgame\blockgame\ball.cpp(69): warning C4244: “+=”: 从“float”转换到“int”，可能丢失数据
+d:\source code\vs\blockgame\blockgame\ball.cpp(70): warning C4244: “+=”: 从“float”转换到“int”，可能丢失数据
+  BlockGame.vcxproj -> D:\Source Code\VS\BlockGame\Debug\BlockGame.exe
