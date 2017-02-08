@@ -35,9 +35,11 @@ Game::Game(void)
 
 	// 初始化字体
 	font = nullptr;
+	text_texture = nullptr;
 	//font = TTF_OpenFont("res/SourceSansPro-Regular.ttf", 20);
 	font = TTF_OpenFont("res/font.ttf", 18);
-
+	// 初始化输出文字的矩形
+	text_rect = { 880, 700, 130, 25 };
 	quit = false;
 
 	// 这个用来实现鼠标欧放到新游戏上变色的功能
@@ -112,6 +114,9 @@ void Game::new_game()
 
 	// 重设所有素材
 	//set_textures(textures);
+
+	// 重绘关卡号
+	life_or_level_changed = true;
 }
 
 void Game::set_textures(SDL_Texture *textures[])
@@ -227,6 +232,7 @@ void Game::triple_ball()
 void Game::reset()
 {
 	life -= 1;
+	life_or_level_changed = true;
 	paddle.set_geometry(SCREEN_WIDTH/2, 680,100,10);
 
 	// 装载一个小球
@@ -374,7 +380,7 @@ void Game::update()
 					// 如果小球未发射，跟着板走
 					if (!(*it)->is_launched())
 						(*it)->set_pos(paddle.get_pos().x + paddle.get_geometry().w / 2 - (*it)->get_geometry().w / 2, paddle.get_pos().y - (*it)->get_geometry().h);
-					// TODO: 测试
+					// 分两次更新小球位置，以达到增加碰撞采样点
 					(*it)->update();
 					handle_collision();
 					// 如果小球尚未坠毁
@@ -405,6 +411,7 @@ void Game::update()
 					delete (*ball);
 					// 坠毁
 					ball = balls.erase(ball);
+					
 				}
 				else
 					++ball;
@@ -421,7 +428,7 @@ void Game::update()
 			}
 
 			// 获取帧数，更新动画信息
-			int frame = int(((SDL_GetTicks() / 10) % 30));
+			//int frame = int(((SDL_GetTicks() / 10) % 30));
 			for (list<Animation*>::iterator anim = animations.begin(); anim != animations.end(); )
 			{
 				if (*anim)
@@ -437,10 +444,19 @@ void Game::update()
 			}
 
 			// 渲染生命数和关卡号
-			SDL_Rect text_rect = { 880, 700, 130, 25 };
-			char temp_str[50];
-			sprintf(temp_str, "LEVEL: %d LIFE: %d", level, life);
-			SDL_RenderCopy(renderer, render_text(temp_str), NULL, &text_rect);
+			
+			if(life_or_level_changed)
+			{
+				SDL_DestroyTexture(text_texture);
+				text_texture = nullptr;
+				char temp_str[50];
+				sprintf(temp_str, "LEVEL: %d LIFE: %d", level, life);
+				text_texture = render_text(temp_str);
+				life_or_level_changed = false;
+			}
+			
+			
+			SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
 		}
 		else
 		{
@@ -631,6 +647,7 @@ void Game::handle_collision()
 				break;
 			case ITEM_ADD_LIFE:
 				life++;
+				life_or_level_changed = true;
 				(*item)->gotten = true;
 				break;
 			}

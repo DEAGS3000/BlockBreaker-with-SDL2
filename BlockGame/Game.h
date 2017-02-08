@@ -89,6 +89,10 @@ public:
 
 	SDL_Texture* render_text(string message);
 
+	SDL_Texture* text_texture;
+	bool life_or_level_changed;
+	SDL_Rect text_rect;
+
 	bool quit;
 	bool mouse_on_button;
 	SDL_Rect option_rect;
