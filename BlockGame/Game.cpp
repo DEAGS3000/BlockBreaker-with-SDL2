@@ -5,12 +5,14 @@
 
 Game::Game(void)
 {
+	// 初始化计时器变量
 	frame_time = 0.0f;
 	previous_time = 0;
 	current_time = 0;
 	delta_time = 0.0f;
 
 	game_started = false;
+
 	// 载入SDL
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -33,9 +35,11 @@ Game::Game(void)
 
 	// 初始化字体
 	font = nullptr;
-	font = TTF_OpenFont("res/SourceSansPro-Regular.ttf", 20);
-	//TTF_OpenFont("res/font.ttf", 18);
+	//font = TTF_OpenFont("res/SourceSansPro-Regular.ttf", 20);
+	font = TTF_OpenFont("res/font.ttf", 18);
+
 	quit = false;
+
 	// 这个用来实现鼠标欧放到新游戏上变色的功能
 	mouse_on_button = false;
 
