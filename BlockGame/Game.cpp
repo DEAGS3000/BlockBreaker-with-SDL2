@@ -254,7 +254,7 @@ bool Game::is_clear()
 
 void Game::init()
 {
-	textures[BACKGROUND] = IMG_LoadTexture(renderer, "res/bg2.jpg");
+	textures[BACKGROUND] = IMG_LoadTexture(renderer, "res/bg.jpg");
 
 	// «Ú
 	textures[NORMAL_BALL] = load_image("res/normal_ball.png");
@@ -277,7 +277,7 @@ void Game::init()
 	textures[ITEM_ADD_LIFE] = load_image("res/item_add_life.png");
 
 	// ∂Øª≠
-	textures[ANIMATION] = load_image("res/animation2.png");
+	textures[ANIMATION] = load_image("res/animation.png");
 	// ‘›Õ£
 	textures[PAUSE] = load_image("res/pause.png");
 	// ±ÍÃ‚
