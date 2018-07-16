@@ -21,7 +21,7 @@ GraphicItem::GraphicItem(SDL_Texture *t)
 
 GraphicItem::~GraphicItem(void)
 {
-	
+
 }
 
 // 设置材质
@@ -38,13 +38,19 @@ SDL_Texture* GraphicItem::get_texture()
 }
 
 // get几何信息
-SDL_Rect GraphicItem::get_geometry()
+Vec4f GraphicItem::get_geometry()
 {
 	return geometry;
 }
 
+SDL_Rect GraphicItem::get_geometry_sdl()
+{
+	SDL_Rect temp = { static_cast<int>(geometry.x), static_cast<int>(geometry.y), static_cast<int>(geometry.w), static_cast<int>(geometry.h) };
+	return temp;
+}
+
 // set几何信息
-void GraphicItem::set_geometry(int x, int y, int w, int h)
+void GraphicItem::set_geometry(float x, float y, float w, float h)
 {
 	geometry.x = x;
 	geometry.y = y;
@@ -52,29 +58,29 @@ void GraphicItem::set_geometry(int x, int y, int w, int h)
 	geometry.h = h;
 }
 
-void GraphicItem::set_geometry(SDL_Rect rect)
+void GraphicItem::set_geometry(Vec4f rect)
 {
 	geometry = rect;
 }
 
 // set位置
-void GraphicItem::set_pos(int x, int y)
+void GraphicItem::set_pos(float x, float y)
 {
 	geometry.x = x;
 	geometry.y = y;
 }
 
 // set位置
-void GraphicItem::set_pos(POINT p)
+void GraphicItem::set_pos(Vec2f p)
 {
 	geometry.x = p.x;
 	geometry.y = p.y;
 }
 
 // get位置
-POINT GraphicItem::get_pos()
+Vec2f GraphicItem::get_pos()
 {
-	POINT temp;
+	Vec2f temp;
 	temp.x = geometry.x;
 	temp.y = geometry.y;
 	return temp;
@@ -87,46 +93,52 @@ void GraphicItem::update(float delta_time)
 }
 
 
-void GraphicItem::set_speed_x(int s)
+void GraphicItem::set_speed_x(float s)
 {
 	speed.x =s;
 }
-void GraphicItem::set_speed_y(int s)
+void GraphicItem::set_speed_y(float s)
 {
 	speed.y = s;
 }
 
 // 设置宽度
-void GraphicItem::set_width(int w)
+void GraphicItem::set_width(float w)
 {
 	geometry.w = w;
 }
 
 // 以下四个函数用于实现边界信息的简便获取
-int GraphicItem::get_left_edge()
+int GraphicItem::left()
 {
 	return geometry.x;
 }
-int GraphicItem::get_right_edge()
+int GraphicItem::right()
 {
 	return geometry.x + geometry.w;
 }
-int GraphicItem::get_top_edge()
+int GraphicItem::top()
 {
 	return geometry.y;
 }
-int GraphicItem::get_bottom_edge()
+int GraphicItem::bottom()
 {
 	return geometry.y+geometry.h;
+}
+
+Vec2f GraphicItem::center()
+{
+	Vec2f temp = { (left() + right()) / 2, (top() + bottom()) / 2 };
+	return temp;
 }
 
 // 获取图像的中点坐标
 int GraphicItem::get_v_mid()
 {
-	return (get_top_edge()+get_bottom_edge()) / 2;
+	return (top()+bottom()) / 2;
 }
 int GraphicItem::get_h_mid()
 {
-	return (get_left_edge() + get_right_edge())/2;
+	return (left() + right())/2;
 }
 

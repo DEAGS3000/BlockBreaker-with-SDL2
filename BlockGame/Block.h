@@ -24,10 +24,11 @@ public:
 	double left_bottom_angle();
 	double right_top_angle();
 	double left_top_angle();
-	double angle_with_ball(SDL_Rect ball_geo);
+	double angle_with_ball(Vec4f ball_geo);
+	bool in_block(Vec2f point);
 int health;
 	int score;
 protected:
-	
+
 };
 

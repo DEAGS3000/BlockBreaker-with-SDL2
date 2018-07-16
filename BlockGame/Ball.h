@@ -25,6 +25,7 @@ public:
 	virtual Ball* clone() = 0;
 	// Ð¡ÇòÊÇ·ñÒÑ×¹»Ù
 	bool crashed;
+	Vec2f last_pos;
 protected:
 	bool launched;
 };

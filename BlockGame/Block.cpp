@@ -77,7 +77,7 @@ double Block::left_top_angle()
 }
 
 
-double Block::angle_with_ball(SDL_Rect ball_geo)
+double Block::angle_with_ball(Vec4f ball_geo)
 {
 	double x1 = geometry.x + geometry.w / 2;
 	double y1 = geometry.y + geometry.h / 2;
@@ -89,4 +89,9 @@ double Block::angle_with_ball(SDL_Rect ball_geo)
 	if(x2-x1>=0 && y2-y1<0)angle+=360;
 
 	return angle;
+}
+
+bool Block::in_block(Vec2f point)
+{
+	return point.x >= left() && point.x <= right() && point.y >= top() && point.y <= bottom();
 }

@@ -29,7 +29,7 @@ public:
 	Game(void);
 	~Game(void);
 	
-
+	GameState game_state;
 	// 分数、命数
 	int score;
 	int life;
@@ -81,6 +81,8 @@ public:
 
 	// 处理碰撞
 	void handle_collision();
+	// 小球与砖块的碰撞检测，避免飞越
+	void handle_block_collision();
 	// 处理击中
 	//void handle_hit(int i, Ball *ball, Block* block);
 

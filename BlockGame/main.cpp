@@ -67,10 +67,10 @@ int main(int argc, char *argv[])
 					}
 					break;
 				case SDLK_ESCAPE:
-					if(game.paused)
-						game.paused = false;
-					else
-						game.paused = true;
+					if (game.game_state == gs_playing)
+						game.game_state = gs_paused;
+					if (game.game_state == gs_paused)
+						game.game_state = gs_playing;
 					break;
 				}
 				break;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 				}
 				break;
 			case SDL_MOUSEMOTION:
-				if(!game.game_started)
+				if(game.game_state==gs_main_menu)
 				{
 					if (e.button.x > game.option_rect.x && e.button.x < game.option_rect.x + game.option_rect.w
 						&& e.button.y > game.option_rect.y && e.button.y < game.option_rect.y + game.option_rect.h)
@@ -105,22 +105,22 @@ int main(int argc, char *argv[])
 
 					if (e.button.x > game.option_rect.x && e.button.x < game.option_rect.x + game.option_rect.w
 						&& e.button.y > game.option_rect.y && e.button.y < game.option_rect.y + game.option_rect.h)
-						game.game_started = true;
+						//game.game_started = true;
+						game.game_state = gs_playing;
 				}
 				break;
 			default:
 				break;
 			}
-			
 		}
 
 		game.frame_time += game.delta_time;
-		
+
 		// 更新并渲染
 		// 如果frame_time已经够了，就清空并更新
 		if(game.frame_time > 0.01666f)
 		{
-			
+
 			game.frame_time = 0.0f;
 			game.update();
 			game.draw();

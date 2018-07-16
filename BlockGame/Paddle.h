@@ -10,6 +10,8 @@ public:
 	Paddle(void);
 	~Paddle(void);
 	void size_up();
+	// 限制滑板只能变长一次
+	bool size_maximized;
 	void set_texture(SDL_Texture **textures);
 	//void update();
 

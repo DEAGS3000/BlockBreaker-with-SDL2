@@ -34,3 +34,26 @@
 
 #define SCREEN_WIDTH   1024
 #define SCREEN_HEIGHT   768
+
+
+enum GameState
+{
+	gs_main_menu,
+	gs_playing,
+	gs_paused
+};
+
+struct Vec2f
+{
+	float x;
+	float y;
+};
+
+struct Vec4f
+{
+	float x;
+	float y;
+	float w;
+	float h;
+};
+

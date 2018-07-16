@@ -28,7 +28,6 @@ Game::Game(void)
 	// 创建渲染器，其中SDL_RENDERER_PRESENTVSYNC可以自动控制帧率。
 	renderer = SDL_CreateRenderer(ptr, -1, SDL_RENDERER_ACCELERATED/* | SDL_RENDERER_PRESENTVSYNC*/);
 
-	
 	// 清空材质列表
 	for (int i = 0; i < 30; i++)
 		textures[i] = nullptr;
@@ -50,7 +49,7 @@ Game::Game(void)
 	paused = false;
 	// 从第一关开始
 	level = 1;
-	
+	game_state = gs_main_menu;
 	new_game();
 }
 
@@ -107,7 +106,7 @@ void Game::new_game()
 	}
 	animations.clear();
 	reset();
-	
+
 	// 初始化stick
     load_stage(level);
 	// 掉落一个物品
@@ -170,7 +169,7 @@ void Game::load_stage(int level)
 			blocks.push_back(new ItemBlock(x_pos, y_pos));
 			break;
 		}
-		
+
 	}
 }
 
@@ -234,7 +233,7 @@ void Game::reset()
 	life -= 1;
 	life_or_level_changed = true;
 	paddle.set_geometry(SCREEN_WIDTH/2, 680,100,10);
-
+	paddle.size_maximized = false;
 	// 装载一个小球
 	balls.push_back(new NormalBall);
 }
@@ -305,12 +304,35 @@ void Game::draw()
 
 void Game::update()
 {
-	if (game_started)
+	switch(game_state)
 	{
-		//SDL_Event event;
-		// 如果没有暂停
-		if (!paused)
+	case gs_main_menu:
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, textures[TITLE], NULL, NULL);
+		// SDL_Rect option_rect;
+		if (!mouse_on_button)
 		{
+			SDL_QueryTexture(textures[NEW_GAME], NULL, NULL, &option_rect.w, &option_rect.h);
+			option_rect.x = SCREEN_WIDTH / 2 - option_rect.w / 2;
+			option_rect.y = 450;
+			SDL_RenderCopy(renderer, textures[NEW_GAME], NULL, &option_rect);
+		}
+		else
+		{
+			SDL_QueryTexture(textures[NEW_GAME_2], NULL, NULL, &option_rect.w, &option_rect.h);
+			option_rect.x = SCREEN_WIDTH / 2 - option_rect.w / 2;
+			option_rect.y = 450;
+			SDL_RenderCopy(renderer, textures[NEW_GAME_2], NULL, &option_rect);
+		}
+
+		/*SDL_QueryTexture(textures[CHOOSE_STAGE], NULL, NULL, &option_rect.w, &option_rect.h);
+		option_rect.x = SCREEN_WIDTH / 2 - option_rect.w/2;
+		option_rect.y = 520;
+		SDL_RenderCopy(renderer, textures[CHOOSE_STAGE], NULL, &option_rect);*/
+		SDL_RenderPresent(renderer);
+		break;
+	case gs_playing:
+		//SDL_Event event;
 			// 清空图像
 			SDL_RenderClear(renderer);
 
@@ -363,14 +385,12 @@ void Game::update()
 			// 更新素材
 			//game->set_textures(textures);
 
-
-
 			// 背景
 			SDL_RenderCopy(renderer, background, NULL, NULL);
 
 			// 更新板状态
 			paddle.update();
-			SDL_RenderCopy(renderer, paddle.get_texture(), NULL, &paddle.get_geometry());
+			SDL_RenderCopy(renderer, paddle.get_texture(), NULL, &paddle.get_geometry_sdl());
 
 			// 更新所有球状态
 			for (list<Ball*>::iterator it = balls.begin(); it != balls.end(); ++it)
@@ -387,17 +407,7 @@ void Game::update()
 					if (!(*it)->crashed)
 						(*it)->update();
 				}
-				SDL_RenderCopy(renderer, (*it)->get_texture(), NULL, &(*it)->get_geometry());
-			}
-
-			// 更新所有物品状态
-			for (list<Item*>::iterator item = items.begin(); item != items.end(); ++item)
-			{
-				if (*item)
-				{
-					(*item)->update();
-				}
-				SDL_RenderCopy(renderer, (*item)->get_texture(), NULL, &(*item)->get_geometry());
+				SDL_RenderCopy(renderer, (*it)->get_texture(), NULL, &(*it)->get_geometry_sdl());
 			}
 
 			// 处理碰撞
@@ -411,7 +421,7 @@ void Game::update()
 					delete (*ball);
 					// 坠毁
 					ball = balls.erase(ball);
-					
+
 				}
 				else
 					++ball;
@@ -423,7 +433,7 @@ void Game::update()
 			{
 				if (*block)
 				{
-					SDL_RenderCopy(renderer, (*block)->get_texture(), NULL, &(*block)->get_geometry());
+					SDL_RenderCopy(renderer, (*block)->get_texture(), NULL, &(*block)->get_geometry_sdl());
 				}
 			}
 
@@ -443,9 +453,18 @@ void Game::update()
 					++anim;
 			}
 
+			// 更新所有物品状态
+			for (list<Item*>::iterator item = items.begin(); item != items.end(); ++item)
+			{
+				if (*item)
+				{
+					(*item)->update();
+				}
+				SDL_RenderCopy(renderer, (*item)->get_texture(), NULL, &(*item)->get_geometry_sdl());
+			}
+
 			// 渲染生命数和关卡号
-			
-			if(life_or_level_changed)
+			if (life_or_level_changed)
 			{
 				SDL_DestroyTexture(text_texture);
 				text_texture = nullptr;
@@ -454,42 +473,15 @@ void Game::update()
 				text_texture = render_text(temp_str);
 				life_or_level_changed = false;
 			}
-			
-			
-			SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
-		}
-		else
-		{
-			SDL_Rect temp = { SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 50, 100, 100 };
-			SDL_RenderCopy(renderer, textures[PAUSE], NULL, &temp);
-		}
-	}
-	// 如果没有开始游戏
-	else
-	{
-		SDL_RenderClear(renderer);
-		SDL_RenderCopy(renderer, textures[TITLE], NULL, NULL);
-		// SDL_Rect option_rect;
-		if (!mouse_on_button)
-		{
-			SDL_QueryTexture(textures[NEW_GAME], NULL, NULL, &option_rect.w, &option_rect.h);
-			option_rect.x = SCREEN_WIDTH / 2 - option_rect.w / 2;
-			option_rect.y = 450;
-			SDL_RenderCopy(renderer, textures[NEW_GAME], NULL, &option_rect);
-		}
-		else
-		{
-			SDL_QueryTexture(textures[NEW_GAME_2], NULL, NULL, &option_rect.w, &option_rect.h);
-			option_rect.x = SCREEN_WIDTH / 2 - option_rect.w / 2;
-			option_rect.y = 450;
-			SDL_RenderCopy(renderer, textures[NEW_GAME_2], NULL, &option_rect);
-		}
 
-		/*SDL_QueryTexture(textures[CHOOSE_STAGE], NULL, NULL, &option_rect.w, &option_rect.h);
-		option_rect.x = SCREEN_WIDTH / 2 - option_rect.w/2;
-		option_rect.y = 520;
-		SDL_RenderCopy(renderer, textures[CHOOSE_STAGE], NULL, &option_rect);*/
-		SDL_RenderPresent(renderer);
+
+			SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
+
+		break;
+	case gs_paused:
+		SDL_Rect temp = { SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 50, 100, 100 };
+		SDL_RenderCopy(renderer, textures[PAUSE], NULL, &temp);
+		break;
 	}
 }
 
@@ -545,35 +537,28 @@ void Game::handle_collision()
 			hit = false;
 			if (*block)
 			{
-				// 测试
-				/*if ((*block)->get_geometry().x == 287 && (*block)->get_geometry().y == 370 && (*ball)->get_top_edge() <= 370 && (*ball)->speed.y < 0)
-				{
-				int a;
-				a = 10;
-				}*/
-
-				// 碰撞砖块上下边界
 				// 如果小球有像素位于砖块左右边界之内
 				// 关于角度，先把等于也放在碰撞上下边界中
-				double algle_with_ball = (*block)->angle_with_ball((*ball)->get_geometry());
-				double right_top_angle = (*block)->right_top_angle();
-				double left_top_angle = (*block)->left_top_angle();
+				// 碰撞砖块上下边界
 				// 判断小球是否与砖块发生了接触
-				if (((*ball)->get_h_mid() >= (*block)->get_left_edge() && (*ball)->get_h_mid() <= (*block)->get_right_edge())
+				// 第一行限定小球与砖块碰撞以小球边界为基准还是以小球中线为基准
+				if (((*ball)->get_h_mid() >= (*block)->left() && (*ball)->get_h_mid() <= (*block)->right())
+					// 第二、三行判断小球是否处于砖块上方左右范围内
 					&& (((*block)->angle_with_ball((*ball)->get_geometry()) <= (*block)->right_top_angle()
 						&& (*block)->angle_with_ball((*ball)->get_geometry()) >= (*block)->left_top_angle())
+						//第四、五行判断小球是否处于砖块下方左右范围内
 						|| ((*block)->angle_with_ball((*ball)->get_geometry()) <= (*block)->left_bottom_angle()
 							&& (*block)->angle_with_ball((*ball)->get_geometry()) >= (*block)->right_bottom_angle())))
 				{
 					// 碰撞砖块下界
-					if ((*ball)->get_top_edge() < (*block)->get_bottom_edge() && (*ball)->get_bottom_edge() > (*block)->get_bottom_edge())
+					if (((*ball)->top() < (*block)->bottom() && (*ball)->bottom() > (*block)->bottom())/* || (*ball)->last_pos.y > (*block)->bottom()*/)
 					{
 						(*ball)->hit(BOTTOM);
 						(*block)->hit_by((*ball), &items);
 					}
 
 					// 碰撞砖块上界
-					else if ((*ball)->get_bottom_edge() > (*block)->get_top_edge() && (*ball)->get_top_edge() < (*block)->get_top_edge())
+					else if (((*ball)->bottom() > (*block)->top() && (*ball)->top() < (*block)->top())/* || (*ball)->last_pos.y < (*block)->top()*/)
 					{
 						(*ball)->hit(TOP);
 						(*block)->hit_by((*ball), &items);
@@ -581,21 +566,18 @@ void Game::handle_collision()
 				}
 				// 碰撞砖块左右边界
 				// 如果小球有像素位于砖块上下边界之内
-				else if ((*ball)->get_v_mid() >= (*block)->get_top_edge() && (*ball)->get_v_mid() <= (*block)->get_bottom_edge())
+				else if ((*ball)->get_v_mid() >= (*block)->top() && (*ball)->get_v_mid() <= (*block)->bottom())
 				{
 
 					// 碰撞砖块左界
-					int ball_right = (*ball)->get_right_edge();
-					int block_left = (*block)->get_left_edge();
-					int ball_left = (*ball)->get_left_edge();
 
-					if ((*ball)->get_right_edge() > (*block)->get_left_edge() && (*ball)->get_left_edge() < (*block)->get_left_edge())
+					if ((*ball)->right() > (*block)->left() && (*ball)->left() < (*block)->left())
 					{
 						(*ball)->hit(LEFT);
 						(*block)->hit_by((*ball), &items);
 					}
 					// 碰撞砖块右界
-					else if ((*ball)->get_left_edge() < (*block)->get_right_edge() && (*ball)->get_right_edge() > (*block)->get_right_edge())
+					else if ((*ball)->left() < (*block)->right() && (*ball)->right() > (*block)->right())
 					{
 						(*ball)->hit(RIGHT);
 						(*block)->hit_by((*ball), &items);
@@ -615,7 +597,7 @@ void Game::handle_collision()
 					hit = true;
 				}
 				if (!hit)
-					block++;
+					++block;
 			}
 		}
 		++ball;
@@ -627,8 +609,8 @@ void Game::handle_collision()
 		if ((*item)->speed.y > 0 &&
 			(*item)->get_geometry().y >= paddle.get_geometry().y - (*item)->get_geometry().h &&
 			(*item)->get_geometry().x + (*item)->get_geometry().w / 2 > paddle.get_geometry().x &&
-			(*item)->get_geometry().x + (*item)->get_geometry().w / 2 < paddle.get_right_edge() &&
-			(*item)->get_top_edge() <= paddle.get_bottom_edge())
+			(*item)->get_geometry().x + (*item)->get_geometry().w / 2 < paddle.right() &&
+			(*item)->top() <= paddle.bottom())
 		{
 			// 判断类型，发动效果
 			switch ((*item)->type)
@@ -653,7 +635,7 @@ void Game::handle_collision()
 			}
 		}
 		// 如果没吃到
-		else if ((*item)->get_bottom_edge() == SCREEN_HEIGHT)
+		else if ((*item)->bottom() == SCREEN_HEIGHT)
 			(*item)->gotten = true;
 		// 删除生命值小于等于0 的砖块
 		if ((*item)->gotten)

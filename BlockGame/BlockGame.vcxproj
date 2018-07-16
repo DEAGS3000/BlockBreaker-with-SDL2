@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0E619F81-D926-467F-A7AA-7BB389006D08}</ProjectGuid>
     <RootNamespace>BlockGame</RootNamespace>
+    <ProjectName>BlockBreaker</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -52,7 +53,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -84,7 +85,6 @@
     <ClCompile Include="Paddle.cpp" />
     <ClCompile Include="SteelBlock.cpp" />
     <ClCompile Include="SuperBall.cpp" />
-    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animation.h" />
@@ -99,11 +99,9 @@
     <ClInclude Include="ItemBlock.h" />
     <ClInclude Include="NormalBall.h" />
     <ClInclude Include="NormalBlock.h" />
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="Paddle.h" />
     <ClInclude Include="SteelBlock.h" />
     <ClInclude Include="SuperBall.h" />
-    <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
