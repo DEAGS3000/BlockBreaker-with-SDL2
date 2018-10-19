@@ -28,7 +28,7 @@ class Game
 public:
 	Game(void);
 	~Game(void);
-	
+
 	GameState game_state;
 	// ·ÖÊı¡¢ÃüÊı
 	int score;
